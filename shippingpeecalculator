@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>배송비 계산기</title>
+</head>
+<body>
+    <h1>배송비 계산기</h1>
+    <form id="shippingForm">
+        <label for="order_amount">주문 상품의 합계 금액:</label>
+        <input type="number" id="order_amount" required><br>
+        <label for="return_confirmed_amount">반품 후 구매확정된 주문 상품의 합계 금액:</label>
+        <input type="number" id="return_confirmed_amount" required><br>
+        <label for="is_remote_area">도서산간 지역 여부:</label>
+        <input type="checkbox" id="is_remote_area"><br>
+        <button type="button" onclick="calculateShipping()">계산하기</button>
+    </form>
+
+    <!-- 계산 결과 및 과정을 동적으로 표시하는 부분 -->
+    <div id="shippingResult" style="display: none;">
+        <h2 id="finalShippingFee"></h2>
+        <p id="calculationDetails"></p>
+    </div>
+
+    <script>
+        function calculateShipping() {
+            var orderAmount = parseInt(document.getElementById('order_amount').value);
+            var returnConfirmedAmount = parseInt(document.getElementById('return_confirmed_amount').value);
+            var isRemoteArea = document.getElementById('is_remote_area').checked;
+
+            // 배송 및 반품 정책
+            var freeShippingThreshold = 50000;
+            var shippingFee = 2500;
+            var remoteAreaFee = 2500;
+            var returnFeeFullOrderOverThreshold = 5000;
+            var returnFeePartialOrderOverThreshold = 2500;
+
+            // 결과 표시를 위한 변수
+            var finalShippingFee = 0;
+            var details = "";
+
+            // 주문 상품의 합계 금액
+            details += "주문 상품의 합계 금액: " + orderAmount + "원<br>";
+
+            // 반품 후 구매확정된 주문 상품의 합계 금액
+            details += "반품 후 구매확정된 주문 상품의 합계 금액: " + returnConfirmedAmount + "원<br>";
+
+            // 도서산간 여부
+            details += "도서산간 지역 여부: " + (isRemoteArea ? "O" : "X") + "<br>";
+
+            // 배송비 계산 로직
+            if (orderAmount < freeShippingThreshold) {
+                finalShippingFee += shippingFee;
+                details += "<br>최초 배송비: " + shippingFee + "원";
+            } else {
+                details += "<br>최초 배송비: 0원 (무료 배송)";
+            }
+
+            if (returnConfirmedAmount >= freeShippingThreshold) {
+                finalShippingFee += returnFeeFullOrderOverThreshold;
+                details += "<br>반품 후 구매확정된 주문 합계금액 5만원 이상: " + returnFeeFullOrderOverThreshold + "원";
+            } else if (returnConfirmedAmount > 0) {
+                finalShippingFee += returnFeePartialOrderOverThreshold;
+                details += "<br>반품 후 구매확정된 주문 합계금액 5만원 미만: " + returnFeePartialOrderOverThreshold + "원";
+            }
+
+            if (isRemoteArea) {
+                finalShippingFee += remoteAreaFee;
+                details += "<br>도서산간 여부: O " + remoteAreaFee + "원";
+            } else {
+                details += "<br>도서산간 여부: X (추가 비용 없음)";
+            }
+
+            // 결과 표시
+            var resultElement = document.getElementById('finalShippingFee');
+            resultElement.textContent = '최종 배송비: ' + finalShippingFee + '원';
+
+            var detailsElement = document.getElementById('calculationDetails');
+            detailsElement.innerHTML = details;
+
+            // 결과를 표시하는 부분 보이기
+            document.getElementById('shippingResult').style.display = 'block';
+        }
+    </script>
+</body>
+</html>
